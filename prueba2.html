@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Easy example | CartoDB.js</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+    <style>
+      html, body, #map {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+       #feature-list {
+       			z-index:10000000;
+                position: absolute;
+                top: 10px;
+                right: 20px;
+                background: rgba(255,255,255,0.9);
+                border-radius: 5px;
+                padding: 5px 15px;
+                border: 1px solid #999;
+                width: 210px;
+                height: 90%;
+                /* overflow-y: scroll;*/
+                font-size:14px;
+            }
+            #feature-list > p {
+                padding: 15px 0px;
+                border-bottom: 1px solid #999;
+            }
+
+            #feature-list ul {
+                padding: 0; margin: 0;
+                list-style-type: none;
+                font-family: Helvetica, Arial;
+                font-size: 13px;
+                color: #444;
+            }
+            #feature-list li:not(:last-child) {
+                border-bottom: 1px solid #999;
+            }
+            #feature-list li:hover {
+
+                cursor: pointer;
+            }
+
+            #feature-list header h3 {
+                margin: 4px 0 0 0;
+                color: #000;
+                font-size: 0.75em;
+            }
+            #feature-list .investor-metrics {
+                padding-bottom: 0;
+                margin: 9px 0 0;
+                font-size: 0.75em;
+                line-height: 15px;
+            }
+            #feature-list .property-bedroom-config {
+                color: rgb(255, 255, 255);
+                display: block;
+                font-size: 11.0240001678467px;
+                line-height: 11.0240001678467px;
+                margin-top: 2px;
+                text-align: center;
+                text-transform: uppercase;
+                zoom: 1;
+            }
+            #feature-list .investor-metrics {
+                padding-bottom: 0;
+                margin: 9px 0 0;
+                font-size: 0.75em;
+                line-height: 15px;
+                padding-left:0px;
+            }
+            #feature-list .investor-metrics li {
+                float: left;
+                list-style: none;
+                border-top: 0;border-bottom: 0;
+                border-radius: 0;
+                box-sizing: border-box;
+                display: list-item;
+            }
+
+            #feature-list  .investor-metrics li:nth-child(2n+1) {
+                border-right: 1px dashed black;
+            }
+
+
+            #feature-list .investor-metrics li .metric-name {
+                margin-top: 10px;
+                color: #000;
+            }
+            #feature-list .investor-metrics li .metric-value {
+                font-family: "Museo-Sans-500","Helvetica Neue",Helvetica,Arial,sans-serif;
+                font-size: 1.67em;
+                margin-top: 9px;
+                height: auto;
+                padding-top: 0px;
+            }
+            #feature-list .leaflet-popup-content-wrapper a {
+                color:rgba(255,255,255,0.5);
+            }
+            #feature-list .leaflet-popup-tip-container {
+                display: none;
+                visibility:hidden;
+            }
+            #feature-list .leaflet-popup-tip {
+                border-left:15px solid transparent;
+                border-right:15px solid transparent;
+                border-top:15px solid #2c3e50;
+                display: none;
+                visibility:hidden;
+            }
+
+            div.cartodb-legend.custom {
+                position: absolute;
+                bottom: 35px;
+                left: 20px;
+                right:auto;
+                padding: 13px 15px 14px;
+                font: 400 13px Helvetica,Arial;
+                color: #858585;
+                text-align: left;
+                webkit-box-shadow: rgba(0,0,0,.2) 0 0 4px 2px;
+                -moz-box-shadow: rgba(0,0,0,.2) 0 0 4px 2px;
+                box-shadow: rgba(0,0,0,.2) 0 0 4px 2px;
+                -webkit-border-radius: 4px;
+                -moz-border-radius: 4px;
+                -ms-border-radius: 4px;
+                -o-border-radius: 4px;
+                border-radius: 4px;
+                border: 1px solid #999;
+                background: #fff;
+                z-index: 105;
+            }
+    </style>
+
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+
+     <div id="feature-list">
+            
+            <p align="center">Analisis Cobertura Claro <br><small style="font-weight:600">Abril 2016</small></p>
+            <ul class="investor-metrics rui-clearfix"> <li class="rui-clearfix" style="width:48%;"><div id="percentage" class="metric-value percentage ng-binding" style="text-align:center;">133</div> <div class="metric-name" id="coinvalue" style="text-align:center">Clientes<br>Claro</div></li> <li class="rui-clearfix" style="width:52%;"> <div id="sold-price" class="metric-value sold-price ng-binding" style="text-align:center;">--</div> <div class="metric-name" style="text-align:center">Precio<br>Medio</div> </li> </ul> 
+            <br><br><br>
+            <p style="padding:0px;">Operacion:</p>
+            <input type="radio" name="id_operation_tipo" value="1" checked=""> FIJAS
+            <input type="radio" name="id_operation_tipo" value="2"> MOVILES<br>
+            <p style="padding:0px;">Ciudad:</p>
+            <div id="ciudades">
+
+            </div> 
+            <p style="padding:0px;"><b>NSE:</b></p>
+            <div id="nse">
+
+            </div> 
+            <p style="padding:0px;"><b>Region:</b></p>
+            <div id="regiones">
+
+            </div> 
+                
+        </div>
+
+       
+         <div class="cartodb-legend custom" id="salevalueranges" style="display: none;">	
+            <div class="legend-title">PENETRACION ABONADOS</div>
+            <ul>
+                <li>
+                    <div class="bullet" style="background:#FFFFB2"></div>
+                    0 - 12.86
+                </li>
+                <li>
+                    <div class="bullet" style="background:#FECC5C"></div>
+                    12.86 - 22.21
+                </li>
+                <li>
+                    <div class="bullet" style="background:#FD8D3C"></div>
+                    22.21 - 31.79
+                </li>
+                <li>
+                    <div class="bullet" style="background:#F03B20"></div>
+                    31.79 - 41.45
+                </li>  
+                <li>
+                    <div class="bullet" style="background:#BD0026"></div>
+                    41.45 - 105
+                </li>               
+
+            </ul>
+        </div>
+        <div class="cartodb-legend custom" id="rentvalueranges" style="display: block;">	
+            
+        <div class="legend-title">CLIENTES</div>
+            <ul>
+                <li>
+                    <div class="bullet" style="background:#FFFFB2"></div>
+                    0 - 72
+                </li>
+                <li>
+                    <div class="bullet" style="background:#FECC5C"></div>
+                    72 - 146
+                </li>
+                <li>
+                    <div class="bullet" style="background:#FD8D3C"></div>
+                    146 - 221
+                </li>
+                <li>
+                    <div class="bullet" style="background:#F03B20"></div>
+                    221 - 297
+                </li>  
+                <li>
+                    <div class="bullet" style="background:#BD0026"></div>
+                    297 - 625
+                </li>              
+
+            </ul>
+    </div>
+
+    <!-- include cartodb.js library -->
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+
+    <script>    	
+      function main() {
+        cartodb.createVis('map', 'https://cgcrespo.carto.com/api/v2/viz/dfc370be-0185-11e6-8a11-0e5db1731f59/viz.json', {
+            shareable: false,
+            title: true,
+            description: false,
+            search: false,
+            tiles_loader: true,
+            scrollwheel:true,
+            legends:false,
+            //Si no se especifica la latitud, longitud se ponene por default cerca del mapa
+            center_lat: -2.203816, 
+            center_lon: -79.897453,
+            zoom: 2
+        })
+        .done(function(vis, layers) {
+          // layer 0 is the base layer, layer 1 is cartodb layer
+          // setInteraction is disabled by default
+          layers[1].setInteraction(true);
+          mapLayer = layers[1];
+          var customcss = "#penetracion_final_uio_copy [ penet_nodo <= 105] {polygon-fill: #BD0026;}#penetracion_final_uio_copy [ penet_nodo <= 41.45] {polygon-fill: #F03B20;}#penetracion_final_uio_copy [ penet_nodo <= 31.79] {polygon-fill: #FD8D3C;}#penetracion_final_uio_copy [ penet_nodo <= 22.21] {polygon-fill: #FECC5C;}#penetracion_final_uio_copy [ penet_nodo <= 12.86] {polygon-fill: #FFFFB2;}";
+          mapLayer.getSubLayer(0).setCartoCSS(customcss);
+          createSelector(mapLayer);
+
+         /* layers[1].getSubLayer(0).on('featureOver', function(e, latlng, pos, data) {
+          	 $('#percentage').html(data.clientes_claro);
+          	 console.log(data);
+            //$('#sold-price').html(numberWithCommas(Math.ceil(data.precioprom / 100) * 100));
+        });*/
+
+          layers[1].on('featureOver', function(e, latlng, pos, data) {
+          	 $('#percentage').html(data.clientes_claro);
+            //$('#sold-price').html(numberWithCommas(Math.ceil(data.precioprom / 100) * 100));
+        }).on('mouseout', function(event, latlng, pos, data) {
+            $('#percentage').html('--');
+           // $('#sold-price').html('--');
+        }).on('featureClick', function(event, latlng, pos, data) {
+            $('#percentage').html(data.clientes_claro); 	
+           // $('#sold-price').html(numberWithCommas(Math.ceil(data.precioprom / 100) * 100));
+        });
+         /*   cartodb.log.log(e, latlng, pos, data);
+          });*/
+
+          // you can get the native map to work with it
+          var map = vis.getNativeMap();
+          // now, perform any operations you need
+          map.setZoom(12);
+         //map.panTo([-2.203816, -79.897453]);
+        })
+        .error(function(err) {
+          console.log(err);
+        });
+      }
+
+      function createSelector(layer) {
+                var condition = "";
+                
+                var $options = $("#feature-list").find("input");
+                $options.click(function(e) {
+                    var features = [];
+                    var customcss = '';
+                    var penetracion_cant = [];
+                    var estado = [];
+                    var id_propiedad_tipo = [];
+                    var region = [];
+                    var id_operation_tipo = [];
+                    for (i = 0; i < $options.length; i++) {
+
+                        if ($options[i].checked) {
+
+                            console.log($options[i].checked);
+                            console.log($options[i].name);
+                            if ($options[i].name === 'id_operation_tipo') {
+                                if($options[i].value == "1"){
+                                	$("#rentvalueranges").hide();
+                            		$("#salevalueranges").show();
+                                	customcss += "#penetracion_final_uio_copy [ clientes_claro <= 625] {polygon-fill: #BD0026;}#penetracion_final_uio_copy [ clientes_claro <= 297] {polygon-fill:#F03B20;}#penetracion_final_uio_copy [ clientes_claro <= 221] {polygon-fill: #FD8D3C;}#penetracion_final_uio_copy [ clientes_claro <= 146] {polygon-fill: #FECC5C;}#penetracion_final_uio_copy [ clientes_claro <= 72] {polygon-fill: #FFFFB2;}"; 
+                                }else{
+                                	$("#rentvalueranges").show();
+                            		$("#salevalueranges").hide();
+                                	customcss += "#penetracion_final_uio_copy [ penet_nodo <= 105] {polygon-fill: #BD0026;}#penetracion_final_uio_copy [ penet_nodo <= 41.45] {polygon-fill: #F03B20;}#penetracion_final_uio_copy [ penet_nodo <= 31.79] {polygon-fill: #FD8D3C;}#penetracion_final_uio_copy [ penet_nodo <= 22.21] {polygon-fill: #FECC5C;}#penetracion_final_uio_copy [ penet_nodo <= 12.86] {polygon-fill: #FFFFB2;}"; 
+                                }
+                               
+                            }else if ($options[i].name === 'penetracion_cant') {
+
+                                penetracion_cant.push($options[i].value);
+                                
+                                //                  features.push(deptos_oferta_activa_20150810_casa_ph_depto_venta_usadoynuevo.id_propiedad_tipo in (1,2,3)
+                            }else if ($options[i].name === 'ciudad') {
+                            	id_operation_tipo.push($options[i].value);                                                         
+                                //                  features.push(deptos_oferta_activa_20150810_casa_ph_depto_venta_usadoynuevo.id_propiedad_tipo in (1,2,3)
+                            }else if ($options[i].name === 'region') {
+                            	region.push($options[i].value);                                                         
+                                //                  features.push(deptos_oferta_activa_20150810_casa_ph_depto_venta_usadoynuevo.id_propiedad_tipo in (1,2,3)
+                            }
+
+                            //              features.push($options[i].name + " = 'TRUE'");
+							
+                        }
+                    }
+                  
+                    var query = "";
+                    /*if (id_propiedad_tipo.length > 0) {
+                        query += " AND p.id_propiedad_tipo in (" + id_propiedad_tipo.join(',') + ")";
+                    }*/
+                    if (id_operation_tipo.length > 0) {
+                        console.log(id_operation_tipo);
+                        query += " AND ciudad in (" + id_operation_tipo.join(',') + ")";                    
+                    }
+                    if (penetracion_cant.length > 0) {
+                        query += " AND nse in (" + penetracion_cant.join(',') + ")";
+                    }
+
+                    if (region.length > 0) {
+                        query += " AND region in (" + region.join(',') + ")";
+                    }
+
+                    
+                           
+                   
+                    layer.getSubLayer(0).setSQL("SELECT * FROM penetracion_final_uio_copy where cartodb_id > 0 " + query + " ");
+                    layer.getSubLayer(0).setCartoCSS(customcss);
+                });
+            }
+
+            function obtenerCiudades(){
+                
+                $.getJSON('https://cgcrespo.carto.com/api/v2/sql?q=SELECT ciudad FROM penetracion_final_uio_copy GROUP BY ciudad ', function(data) {
+                    var input =' ';
+                  $.each(data.rows, function(key, val) {
+                    input += '<input type="checkbox" name="ciudad" value="\''+val.ciudad+'\'" checked=""> '+val.ciudad+'<br>';
+                    
+                  });
+                  $('#ciudades').html(input);
+                });
+            }
+
+
+            function obtenerNSE(){
+                
+                $.getJSON('https://cgcrespo.carto.com/api/v2/sql?q=SELECT nse FROM penetracion_final_uio_copy GROUP BY nse ', function(data) {
+                    var input =' ';
+                  $.each(data.rows, function(key, val) {
+                    input += '<input type="checkbox" name="penetracion_cant" value="\''+val.nse+'\'" checked=""> '+val.nse+'<br>';
+                    
+                  });
+                  $('#nse').html(input);
+                });
+            }
+
+            function obtenerRegion(){
+                
+                $.getJSON('https://cgcrespo.carto.com/api/v2/sql?q=SELECT region FROM penetracion_final_uio_copy GROUP BY region ORDER BY region ', function(data) {
+                    var input =' ';
+                  $.each(data.rows, function(key, val) {
+                    input += '<input type="checkbox" name="region" value="\''+val.region+'\'" checked=""> '+val.region+'<br>';
+                    
+                  });
+                  $('#regiones').html(input);
+                });
+            }
+
+            function Insertar(){
+                $.getJSON('https://cgcrespo.carto.com/api/v2/sql?q=INSERT INTO table_name (the_geom, observation) VALUES (ST_GeomFromText(’POINT(-71.2 42.5)’, 4326)', function(data) {
+                    var response =data;
+                
+                });                
+            }
+
+      //window.onload = main;
+      $(document).ready(function() {
+                main();
+                obtenerCiudades();
+                obtenerNSE();
+                obtenerRegion();
+            });
+    </script>
+  </body>
+</html>
